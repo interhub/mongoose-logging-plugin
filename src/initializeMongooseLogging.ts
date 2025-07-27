@@ -28,6 +28,7 @@ type MongoLogPluginInitConfig = {
   log_app_memory_usage: boolean; // default true
   mask_values: boolean; // default true // change it to see all query variables (not safe)
   custom_logger: any; // default console object
+  disable_all: boolean; // default false
 };
 
 const defaultMongoLogPluginInitConfig: MongoLogPluginInitConfig = {
@@ -39,6 +40,7 @@ const defaultMongoLogPluginInitConfig: MongoLogPluginInitConfig = {
   log_app_memory_usage: true,
   custom_logger: console,
   mask_values: true,
+  disable_all: false,
 };
 
 function currentTimeString() {
@@ -58,6 +60,10 @@ function getMemoryUsage() {
 }
 
 function applySchemaSearchQueryHandler(config: MongoLogPluginInitConfig, schema: any, method: string, type: 'pre' | 'post') {
+  if (!!config?.disable_all) {
+    return;
+  }
+
   schema?.[type](method, function (next: any) {
     let uniq_operation_id = '';
     if (type === 'pre') {
@@ -120,7 +126,12 @@ function applySchemaSearchQueryHandler(config: MongoLogPluginInitConfig, schema:
         log_metadata.app_memory_usage = getMemoryUsage();
       }
 
-      config?.custom_logger?.log(log_metadata);
+      if (type === 'pre' && config?.log_pre_query) {
+        config?.custom_logger?.log(log_metadata);
+      }
+      if (type === 'post' && config?.log_post_query) {
+        config?.custom_logger?.log(log_metadata);
+      }
     }
 
     if (type === 'pre') {
@@ -130,6 +141,10 @@ function applySchemaSearchQueryHandler(config: MongoLogPluginInitConfig, schema:
 }
 
 function applySchemaSaveQueryHandler(config: MongoLogPluginInitConfig, schema: any, method: 'save', type: 'pre' | 'post') {
+  if (!!config?.disable_all) {
+    return;
+  }
+
   schema?.[type](method, function (next: any) {
     //eslint-disable-next-line @typescript-eslint/ban-ts-comment
     //@ts-ignore
@@ -173,7 +188,12 @@ function applySchemaSaveQueryHandler(config: MongoLogPluginInitConfig, schema: a
         log_metadata.app_memory_usage = getMemoryUsage();
       }
 
-      config?.custom_logger?.log(log_metadata, errors);
+      if (type === 'pre' && config?.log_pre_save) {
+        config?.custom_logger?.log(log_metadata, errors);
+      }
+      if (type === 'post' && config?.log_post_save) {
+        config?.custom_logger?.log(log_metadata, errors);
+      }
     }
 
     if (type === 'pre') {
@@ -191,19 +211,11 @@ export const getMongooseLogPlugin = (config: Partial<MongoLogPluginInitConfig> =
 
   const mongoLogPlugin = (schema: any) => {
     dbQueryMethods.forEach((method) => {
-      if (config?.log_pre_query) {
-        applySchemaSearchQueryHandler(finalConfig, schema, method, 'pre');
-      }
-      if (config?.log_post_query) {
-        applySchemaSearchQueryHandler(finalConfig, schema, method, 'post');
-      }
+      applySchemaSearchQueryHandler(finalConfig, schema, method, 'pre');
+      applySchemaSearchQueryHandler(finalConfig, schema, method, 'post');
     });
-    if (config?.log_pre_save) {
-      applySchemaSaveQueryHandler(finalConfig, schema, 'save', 'pre');
-    }
-    if (config?.log_post_save) {
-      applySchemaSaveQueryHandler(finalConfig, schema, 'save', 'post');
-    }
+    applySchemaSaveQueryHandler(finalConfig, schema, 'save', 'pre');
+    applySchemaSaveQueryHandler(finalConfig, schema, 'save', 'post');
   };
 
   return mongoLogPlugin;

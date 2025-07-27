@@ -1,6 +1,6 @@
 {
   "name": "mongoose-logging-plugin",
-  "version": "0.0.3",
+  "version": "0.0.5",
   "author": "Stepan Turchenko (https://t.me/Stepan_Turchenko)",
   "files": [
     "dist"
