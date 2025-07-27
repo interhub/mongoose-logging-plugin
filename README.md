@@ -212,6 +212,10 @@ const result = await User.findOne({ email: 'user@example.com' });
 
 - **Responsibility**: All responsibility for data handling and library usage lies solely with you. The author bears no responsibility for any issues arising from the use of this library.
 
+## Author
+
+This library was created by Stepan Turchenko. You can contact the author via Telegram: [https://t.me/Stepan_Turchenko](https://t.me/Stepan_Turchenko).
+
 ## License
 
 [MIT](LICENSE)
