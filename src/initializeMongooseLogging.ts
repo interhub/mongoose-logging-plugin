@@ -162,6 +162,7 @@ function applySchemaSaveQueryHandler(config: MongoLogPluginInitConfig, schema: a
       const log_metadata: MongoLogChunkType = {
         query_id: uniq_operation_id, //
         collection: model_name,
+        operation: method,
         type,
         time,
         query: input_object,

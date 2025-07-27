@@ -39,3 +39,4 @@ lerna-debug.log*
 /.parcel-cache/
 dependency-graph.svg
 .clinic
+dist
