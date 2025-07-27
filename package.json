@@ -13,6 +13,10 @@
       "types": "./dist/main.d.ts"
     }
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/interhub/mongoose-logging-plugin"
+  },
   "types": "dist/main.d.ts",
   "scripts": {
     "build": "tsc --emitDeclarationOnly && node scripts/build.js",
